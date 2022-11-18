@@ -4,6 +4,142 @@ const mongoose = require("mongoose");
 const mapModel = require("./map");
 const axios = require("axios");
 
+/* Printer Setup */
+// const ThermalPrinter = require("node-thermal-printer").printer;
+// const PrinterTypes = require("node-thermal-printer").types;
+
+// let printer = new ThermalPrinter({
+//   type: 'RTP-82U',
+//   interface: 'USB'
+// });
+
+// const print = async() => {
+//     await printer.alignCenter();
+//     await printer.println("Hello world");
+//     await printer.cut();
+//     // console.log(printer);
+
+//     try {
+//         let execute = await printer.execute()
+//         console.log(execute);
+//         // console.error("Print done!");
+//     } catch (error) {
+//         console.log("Print failed:", error);
+//     }
+// }
+
+// print();
+
+const escpos = require('escpos');
+escpos.USB = require('escpos-usb');
+const device  = new escpos.USB();
+
+// const usbPrinter = new escpos.Printer(device);
+// console.log(usbPrinter);
+
+const printer = new escpos.Printer(device);
+// console.log(printer)
+
+const print = (req, res) => {
+    device.open(req, res, function (err) {
+        device.on('data', function (data) {
+            console.log(data);
+            console.log(data.toString('hex'));
+        });
+
+        device.write(_.DLE);
+        device.write(_.EOT);
+        device.write(String.fromCharCode(1));
+
+//         setTimeout(() => {
+//             printer.close();
+//         }, 1000);
+    });
+
+}
+
+print();
+
+// var printer = require('node-thermal-printer');
+
+// const print = async() => {
+//     await printer.init({
+//         type: 'retsol',
+//         interface: "USB"
+//     })
+    
+//     printer.alignCenter();
+    
+//     printer.println("Hello World");
+    
+//     printer.cut();
+    
+//     new printer.execute(function(err) {
+//         if(err) {
+//             console.err("Print failed", err);
+//         } else {
+//             console.log("Print done");
+//         }
+//     })
+// }
+
+// var printer = require("node-thermal-printer");
+
+// const print = async () => {
+//     await printer.prototype.init({
+//         type: 'retol',
+//         interface: 'USB'
+//       });
+//       printer.alignCenter();
+//       printer.println("Hello world", function(done){
+//           printer.cut();
+//           printer.execute(function(err){
+//             if (err) {
+//               console.error("Print failed", err);
+//             } else {
+//              console.log("Print done");
+//             }
+//         });
+//     });
+// }
+
+// print();
+
+// const print = (req, res) => {
+
+//     const escpos = require('escpos');
+//     // install escpos-usb adapter module manually
+//     escpos.USB = require('escpos-usb');
+//     // Select the adapter based on your printer type
+//     const device  = new escpos.USB();
+//     // const device  = new escpos.Network('localhost');
+//     // const device  = new escpos.Serial('/dev/usb/lp0');
+    
+//     const options = { encoding: "GB18030"  /* default */ }
+//     // encoding is optional
+    
+//     const printer = new escpos.Printer(device, options);
+
+//     // console.log(printer);
+//     device.open(req, res, function(error){
+//         printer
+//         .font('a')
+//         .align('ct')
+//         .style('bu')
+//         .size(1, 1)
+//         .text('The quick brown fox jumps over the lazy dog')
+//         .qrimage('https://github.com/song940/node-escpos', function(err){
+//         this.cut();
+//         this.close();
+
+//         console.log(printer)
+//     });
+//     })
+// }
+
+// print();
+/* Printer Setup */
+
 const connectDB = async () => {
     try {
         const con = await mongoose.connect("mongodb+srv://admin:admin123@cluster0.b8srm.mongodb.net/mapquest-api?retryWrites=true&w=majority", {
@@ -53,6 +189,8 @@ app.get("/map", async (req, res) => {
     }
     
 })
+
+
 
 
 app.post("/mapaddress", async (req, res) => {
